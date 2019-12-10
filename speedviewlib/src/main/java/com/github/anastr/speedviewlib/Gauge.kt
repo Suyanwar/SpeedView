@@ -286,9 +286,13 @@ abstract class Gauge constructor(context: Context, attrs: AttributeSet? = null, 
         speedTextPaint.textSize = dpTOpx(18f)
         unitTextPaint.color = -0x1000000
         unitTextPaint.textSize = dpTOpx(15f)
-        sections.add(Section(.6f, -0xff0100).inGauge(this))
-        sections.add(Section(.87f, -0x100).inGauge(this))
-        sections.add(Section(1f, -0x10000).inGauge(this))
+        sections.add(Section(.14f, -0xff0100).inGauge(this))
+        sections.add(Section(.28f, -0x100).inGauge(this))
+        sections.add(Section(.42f, -0x10000).inGauge(this))
+        sections.add(Section(.56f, -0xff0100).inGauge(this))
+        sections.add(Section(.70f, -0x100).inGauge(this))
+        sections.add(Section(.84f, -0x10000).inGauge(this))
+        sections.add(Section(1f, -0xff0100).inGauge(this))
 
         if (Build.VERSION.SDK_INT >= 11) {
             speedAnimator = ValueAnimator.ofFloat(0f, 1f)

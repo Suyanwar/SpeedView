@@ -18,9 +18,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         app:sv_backgroundCircleColor="#7be11b"
-        app:sv_speedometerColor="#00ccff"
-        app:sv_pointerColor="#f00"
-        app:sv_unitTextSize="15sp"
         app:sv_speedTextTypeface="fonts/good-times.ttf" />
 
     <LinearLayout
