@@ -1,21 +1,23 @@
 package com.github.anastr.speedview;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.anastr.speedviewlib.Gauge;
-import com.github.anastr.speedviewlib.PointerSpeedometer;
+import com.github.anastr.speedviewlib.SectionPointerSpeedometer;
 import com.github.anastr.speedviewlib.util.OnSpeedChangeListener;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class PointerActivity extends AppCompatActivity {
 
-    PointerSpeedometer pointerSpeedometer;
+    SectionPointerSpeedometer pointerSpeedometer;
     SeekBar seekBarSpeed;
     Button ok;
     TextView textSpeed, textSpeedChange;
@@ -30,6 +32,16 @@ public class PointerActivity extends AppCompatActivity {
         ok = findViewById(R.id.ok);
         textSpeed = findViewById(R.id.textSpeed);
         textSpeedChange = findViewById(R.id.textSpeedChange);
+
+        ArrayList<String> colorList = new ArrayList<>();
+        colorList.add("#f58a80");
+        colorList.add("#fad95d");
+        colorList.add("#86ce5d");
+        colorList.add("#3bbbc6");
+        colorList.add("#2e9ec5");
+        colorList.add("#2172bd");
+
+        pointerSpeedometer.setColorList(colorList);
 
         ok.setOnClickListener(new View.OnClickListener() {
             @Override

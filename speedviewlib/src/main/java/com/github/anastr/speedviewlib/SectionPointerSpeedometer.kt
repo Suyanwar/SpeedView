@@ -4,22 +4,21 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import com.github.anastr.speedviewlib.components.indicators.SpindleIndicator
-
 /**
- * this Library build By Anas Altair
- * see it on [GitHub](https://github.com/anastr/SpeedView)
- */
-class PointerSpeedometer @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : Speedometer(context, attrs, defStyleAttr) {
+ * Created by Suyanwar on 2019-12-16.
+ * Android Engineer
+ **/
+class SectionPointerSpeedometer @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : Speedometer(context, attrs, defStyleAttr) {
 
     private val markPath = Path()
-    private val speedometerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val pointerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val pointerBackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val speedometerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val markPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val speedometerRect = RectF()
 
-    private var speedometerColor = -0x111112
+    private val pointerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val pointerBackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
     private var pointerColor = -0x1
 
     private var withPointer = true
@@ -28,27 +27,10 @@ class PointerSpeedometer @JvmOverloads constructor(context: Context, attrs: Attr
      * change the color of the center circle (if exist),
      * **this option is not available for all Speedometers**.
      */
-    var centerCircleColor: Int
+    private var centerCircleColor: Int
         get() = circlePaint.color
         set(centerCircleColor) {
             circlePaint.color = centerCircleColor
-            if (!isAttachedToWindow)
-                return
-            invalidate()
-        }
-
-    /**
-     * enable to draw circle pointer on speedometer arc.
-     *
-     * this will not make any change for the Indicator.
-     *
-     * true: draw the pointer,
-     * false: don't draw the pointer.
-     */
-    var isWithPointer: Boolean
-        get() = withPointer
-        set(withPointer) {
-            this.withPointer = withPointer
             if (!isAttachedToWindow)
                 return
             invalidate()
@@ -92,7 +74,6 @@ class PointerSpeedometer @JvmOverloads constructor(context: Context, attrs: Attr
         }
         val a = context.theme.obtainStyledAttributes(attrs, R.styleable.PointerSpeedometer, 0, 0)
 
-        speedometerColor = a.getColor(R.styleable.PointerSpeedometer_sv_speedometerColor, speedometerColor)
         pointerColor = a.getColor(R.styleable.PointerSpeedometer_sv_pointerColor, pointerColor)
         circlePaint.color = a.getColor(R.styleable.PointerSpeedometer_sv_centerCircleColor, circlePaint.color)
         withPointer = a.getBoolean(R.styleable.PointerSpeedometer_sv_withPointer, withPointer)
@@ -117,15 +98,12 @@ class PointerSpeedometer @JvmOverloads constructor(context: Context, attrs: Attr
 
     private fun initDraw() {
         speedometerPaint.strokeWidth = getSpeedometerWidth()
-        speedometerPaint.shader = updateSweep()
         markPaint.color = markColor
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         initDraw()
-
-        canvas.drawArc(speedometerRect, getStartDegree().toFloat(), (getEndDegree() - getStartDegree()).toFloat(), false, speedometerPaint)
 
         if (withPointer) {
             canvas.save()
@@ -151,38 +129,28 @@ class PointerSpeedometer @JvmOverloads constructor(context: Context, attrs: Attr
         val c = createBackgroundBitmapCanvas()
         initDraw()
 
+        val markH = viewSizePa / 28f
         markPath.reset()
-        markPath.moveTo(size * .5f, getSpeedometerWidth() + dpTOpx(8f) + dpTOpx(4f) + padding.toFloat())
-        markPath.lineTo(size * .5f, getSpeedometerWidth() + dpTOpx(8f) + dpTOpx(4f) + padding.toFloat() + (size / 60).toFloat())
+        markPath.moveTo(size * .5f, padding.toFloat())
+        markPath.lineTo(size * .5f, markH + padding)
+        markPaint.strokeWidth = markH / 3f
+
+        val risk = getSpeedometerWidth() * .5f + padding
+        speedometerRect.set(risk, risk, size - risk, size - risk)
+
+        for (i in sections.size-1 downTo 0) {
+            speedometerPaint.color = sections[i].color
+            c.drawArc(speedometerRect, getStartDegree().toFloat(), (getEndDegree() - getStartDegree()) * sections[i].speedOffset, false, speedometerPaint)
+        }
 
         c.save()
         c.rotate(90f + getStartDegree(), size * .5f, size * .5f)
-        val everyDegree = (getEndDegree() - getStartDegree()) * .111f
-        var i = getStartDegree().toFloat()
-        while (i < getEndDegree() - 2f * everyDegree) {
-            c.rotate(everyDegree, size * .5f, size * .5f)
-            c.drawPath(markPath, markPaint)
-            i += everyDegree
-        }
         c.restore()
 
         if (tickNumber > 0)
             drawTicks(c)
         else
             drawDefMinMaxSpeedPosition(c)
-    }
-
-    private fun updateSweep(): SweepGradient {
-        val startColor = Color.argb(150, Color.red(speedometerColor), Color.green(speedometerColor), Color.blue(speedometerColor))
-        val color2 = Color.argb(220, Color.red(speedometerColor), Color.green(speedometerColor), Color.blue(speedometerColor))
-        val color3 = Color.argb(70, Color.red(speedometerColor), Color.green(speedometerColor), Color.blue(speedometerColor))
-        val endColor = Color.argb(15, Color.red(speedometerColor), Color.green(speedometerColor), Color.blue(speedometerColor))
-        val position = getOffsetSpeed() * (getEndDegree() - getStartDegree()) / 360f
-        val sweepGradient = SweepGradient(size * .5f, size * .5f, intArrayOf(startColor, color2, speedometerColor, color3, endColor, startColor), floatArrayOf(0f, position * .5f, position, position, .99f, 1f))
-        val matrix = Matrix()
-        matrix.postRotate(getStartDegree().toFloat(), size * .5f, size * .5f)
-        sweepGradient.setLocalMatrix(matrix)
-        return sweepGradient
     }
 
     private fun updateRadial() {
@@ -192,23 +160,13 @@ class PointerSpeedometer @JvmOverloads constructor(context: Context, attrs: Attr
         pointerBackPaint.shader = pointerGradient
     }
 
-    fun getSpeedometerColor(): Int {
-        return speedometerColor
-    }
-
-    fun setSpeedometerColor(speedometerColor: Int) {
-        this.speedometerColor = speedometerColor
-        invalidate()
-    }
-
-    fun getPointerColor(): Int {
-        return pointerColor
-    }
-
-    fun setPointerColor(pointerColor: Int) {
-        this.pointerColor = pointerColor
-        pointerPaint.color = pointerColor
-        updateRadial()
-        invalidate()
+    fun setColorList(colorList : ArrayList<String>) {
+        colorList.forEachIndexed { index, s ->
+            try {
+                sections[index].color = Color.parseColor(s)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 }
