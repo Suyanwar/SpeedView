@@ -107,7 +107,7 @@ class SectionPointerSpeedometer @JvmOverloads constructor(context: Context, attr
 
         if (withPointer) {
             canvas.save()
-            canvas.rotate(90 + degree, size * .5f, size * .5f)
+            canvas.rotate(90 + degree, size * .5f + dpTOpx(2f) + padding.toFloat(), size * .5f + dpTOpx(2f) + padding.toFloat())
             canvas.drawCircle(size * .5f, getSpeedometerWidth() * .5f + dpTOpx(8f) + padding.toFloat(), getSpeedometerWidth() * .5f + dpTOpx(8f), pointerBackPaint)
             canvas.drawCircle(size * .5f, getSpeedometerWidth() * .5f + dpTOpx(8f) + padding.toFloat(), getSpeedometerWidth() * .5f + dpTOpx(1f), pointerPaint)
             canvas.restore()
@@ -168,5 +168,16 @@ class SectionPointerSpeedometer @JvmOverloads constructor(context: Context, attr
                 e.printStackTrace()
             }
         }
+    }
+
+    fun getPointerColor(): Int {
+        return pointerColor
+    }
+
+    fun setPointerColor(pointerColor: Int) {
+        this.pointerColor = pointerColor
+        pointerPaint.color = pointerColor
+        updateRadial()
+        invalidate()
     }
 }
